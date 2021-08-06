@@ -16,3 +16,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/error/', function () {
+    return view('error404');
+});
+Route::get('/page/', 'ShortLinkController@show')
+    ->name('short.link');
+Route::post('/page/', 'ShortLinkController@save')
+    ->name('short.link.post');
+Route::get('{token}', 'ShortLinkController@redirect')
+    ->name('short.link.token');
