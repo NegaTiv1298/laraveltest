@@ -14,4 +14,5 @@ class ShortLink extends Model
     protected $fillable = [
         'request_link', 'token_link', 'attendance_limit', 'time_to_die', 'count_limit',
     ];
+    protected $table = 'short_link';
 }

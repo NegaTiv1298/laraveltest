@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LinksRequest;
+use App\ShortLink;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
@@ -25,9 +26,8 @@ class ShortLinkController extends Controller
     public function show()
     {
 
-        return view('page', [
-            'shortLinks' => DB::table('short_link')->latest()->get()
-        ]);
+        return view('page', ['shortLinks' => ShortLink::all()]);
+
     }
 
     /**
@@ -50,14 +50,16 @@ class ShortLinkController extends Controller
         $generatedTime = date('Y-m-d-H-i-s', ($timestampRequest + time()));
         $generatedToken = str_shuffle(Str::upper(Str::random(3)) . Str::lower(Str::random(3)) . mt_rand(10, 99));
 
-        DB::table('short_link')->insert([
+        $shortLink = new ShortLink([
             'request_link' => $urlRequest,
             'token_link' => $generatedToken,
             'attendance_limit' => $limitRequest,
-            'time_to_die' => $generatedTime,
+            'time_to_die' => $generatedTime
         ]);
 
-        return redirect()->route('short.link');
+        $shortLink->save();
+
+        return redirect()->route('short.link')->with('success', 'Сокращенная ссылка успешно создана');
     }
 
     /**
@@ -68,12 +70,13 @@ class ShortLinkController extends Controller
      */
     public function redirect($token)
     {
-        $link = DB::table('short_link')
-            ->where('token_link', $token)->first();
+        $link = ShortLink::all()
+            ->where('token_link', $token)
+            ->first();
         $currentTime = date('Y-m-d-H-i-s', (time()));
         if (($link->attendance_limit === 0 || $link->count_limit < $link->attendance_limit) && $currentTime < $link->time_to_die) {
-            DB::table('short_link')
-                ->where('token_link', $token)->increment('count_limit', 1);
+            $link->count_limit++;
+            $link->save();
 
             return redirect($link->request_link);
         }
