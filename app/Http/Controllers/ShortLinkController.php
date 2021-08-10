@@ -26,7 +26,7 @@ class ShortLinkController extends Controller
     public function show()
     {
 
-        return view('page', ['shortLinks' => ShortLink::all()]);
+        return view('page', ['shortLinks' => ShortLink::orderBy('id')->paginate(5)]);
 
     }
 

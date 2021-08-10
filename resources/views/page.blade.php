@@ -56,5 +56,6 @@
             @endforeach
             </tbody>
         </table>
+        {{ $shortLinks->links() }}
         @stop
     </div>
