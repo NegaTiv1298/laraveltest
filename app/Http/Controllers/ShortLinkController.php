@@ -7,7 +7,6 @@ use App\ShortLink;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -26,7 +25,7 @@ class ShortLinkController extends Controller
     public function show()
     {
 
-        return view('page', ['shortLinks' => ShortLink::orderBy('id')->paginate(5)]);
+        return view('page', ['shortLinks' => ShortLink::orderBy('id', 'desc')->paginate(5)]);
 
     }
 
@@ -70,11 +69,11 @@ class ShortLinkController extends Controller
      */
     public function redirect($token)
     {
+        date_default_timezone_set('Europe/Kiev');
         $link = ShortLink::all()
             ->where('token_link', $token)
             ->first();
-        $currentTime = date('Y-m-d-H-i-s', (time()));
-        if (($link->attendance_limit === 0 || $link->count_limit < $link->attendance_limit) && $currentTime < $link->time_to_die) {
+        if (($link->attendance_limit === 0 || $link->count_limit < $link->attendance_limit) && time() < strtotime($link->time_to_die)) {
             $link->count_limit++;
             $link->save();
 
